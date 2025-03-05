@@ -4,8 +4,8 @@ contact_links:
     url: https://discord.gg/tSqtvHUJzE
     about: You can join the discussions on Discord.
   - name: Chat
-    url: https://github.com/Avdhesh-Varshney/WebMasterLog/discussions
+    url: https://github.com/Avdhesh-Varshney/blog-script/discussions
     about: You can chat with the community on GitHub Discussions.
   - name: Login does not work
-    url: https://github.com/Avdhesh-Varshney/WebMasterLog/blob/main/CONTRIBUTING.md
+    url: https://github.com/Avdhesh-Varshney/blog-script/blob/main/CONTRIBUTING.md
     about: Before opening a new issue, please make sure to read CONTRIBUTING.md

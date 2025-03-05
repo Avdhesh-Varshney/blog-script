@@ -16,13 +16,13 @@ body:
     attributes:
       label: "Important Points to Note"
       options:
-        - label: "I agree to adhere to the project's [Code of Conduct](https://github.com/Avdhesh-Varshney/WebMasterLog/blob/main/CODE_OF_CONDUCT.md)."
+        - label: "I agree to adhere to the project's [Code of Conduct](https://github.com/Avdhesh-Varshney/blog-script/blob/main/CODE_OF_CONDUCT.md)."
           required: true
-        - label: "I have reviewed and understood the project's [Contributing Guidelines](https://github.com/Avdhesh-Varshney/WebMasterLog/blob/main/CONTRIBUTING.md)."
+        - label: "I have reviewed and understood the project's [Contributing Guidelines](https://github.com/Avdhesh-Varshney/blog-script/blob/main/CONTRIBUTING.md)."
           required: true
         - label: "I have checked the existing issues and can confirm that this is not a duplicate."
           required: true
-        - label: "I have reviewed and understood the project's [Issue Creation Guidelines](https://github.com/Avdhesh-Varshney/WebMasterLog/issues/108)."
+        - label: "I have reviewed and understood the project's [Issue Creation Guidelines](https://github.com/Avdhesh-Varshney/blog-script/issues/108)."
           required: true
 
   - type: textarea
@@ -40,7 +40,7 @@ body:
       label: "Is this bug related to the main website or any sub-projects?"
       options:
         - "Main Website"
-        - "Sub Project"
+        - "Sub Module/Project"
     validations:
       required: true
 
@@ -100,5 +100,5 @@ body:
         **Do not raise a PR without being assigned to the issue.**
         > **NOTE:** This issue will automatically be unassigned if the PR is not raised within the given time frame.
 
-        ### Happy Coding! 🎉
+        #### Happy Coding! 🎉
         All the best with your contribution! 🚀
