@@ -1,5 +1,5 @@
 import { useContext, useEffect } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { Toaster, toast } from 'react-hot-toast';
 import EditorJS from "@editorjs/editorjs";
 
@@ -18,13 +18,15 @@ const ProjectEditor = () => {
 
     let { userAuth: { access_token } } = useContext(UserContext);
 
+    let { project_id } = useParams();
+
     let navigate = useNavigate();
 
     useEffect(() => {
         if (!textEditor.isReady) {
             setTextEditor(new EditorJS({
                 holder: "textEditor",
-                data: content,
+                data: Array.isArray(content) ? content[0] : content,
                 tools: tools,
                 placeholder: "Let's write an awesome story"
             }));
@@ -126,7 +128,7 @@ const ProjectEditor = () => {
                         title, des, banner, projectUrl, repository, tags, content, draft: true
                     }
 
-                    axios.post(`${import.meta.env.VITE_SERVER_DOMAIN}/api/project/create`, projectObj, {
+                    axios.post(`${import.meta.env.VITE_SERVER_DOMAIN}/api/project/create`, { ...projectObj, id: project_id }, {
                         headers: {
                             'Authorization': `Bearer ${access_token}`
                         }

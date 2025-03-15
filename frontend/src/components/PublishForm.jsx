@@ -5,12 +5,14 @@ import { EditorContext } from "../pages/Editor";
 import Tag from "./Tags";
 import axios from "axios";
 import { UserContext } from "../App";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 
 const PublishForm = () => {
 
     let characterLimit = 200;
     let tagLimit = 10;
+
+    let { project_id } = useParams();
 
     let { project, project: { banner, projectUrl, repository, title, tags, des, content }, setProject, setEditorState } = useContext(EditorContext);
 
@@ -84,7 +86,7 @@ const PublishForm = () => {
             title, des, banner, projectUrl, repository, tags, content, draft: false
         }
 
-        axios.post(`${import.meta.env.VITE_SERVER_DOMAIN}/api/project/create`, projectObj, {
+        axios.post(`${import.meta.env.VITE_SERVER_DOMAIN}/api/project/create`, { ...projectObj, id: project_id }, {
             headers: {
                 'Authorization': `Bearer ${access_token}`
             }

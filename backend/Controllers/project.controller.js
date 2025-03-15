@@ -6,7 +6,7 @@ import User from "../Models/user.model.js";
 export const createProject = async (req, res) => {
     let authorId = req.user;
 
-    let { title, des, banner, projectUrl, repository, tags, content, draft } = req.body;
+    let { title, des, banner, projectUrl, repository, tags, content, draft, id } = req.body;
 
     if (!title.length) {
         return res.status(403).json({ error: "You must provide a title" });
@@ -36,36 +36,47 @@ export const createProject = async (req, res) => {
 
     tags = tags.map(tag => tag.toLowerCase());
 
-    let project_id = title.replace(/[^a-zA-Z0-9]/g, ' ').replace(/\s+/g, '-').trim() + nanoid();
+    let project_id = id || title.replace(/[^a-zA-Z0-9]/g, ' ').replace(/\s+/g, '-').trim() + nanoid();
 
-    let project = new Project({
-        title,
-        des,
-        banner,
-        projectUrl,
-        repository,
-        tags,
-        content,
-        author: authorId,
-        project_id,
-        draft: Boolean(draft)
-    })
-
-    project.save()
-        .then(project => {
-            let incrementVal = draft ? 0 : 1;
-
-            User.findOneAndUpdate({ _id: authorId }, { $inc: { "account_info.total_posts": incrementVal }, $push: { "projects": project._id } })
-                .then(user => {
-                    return res.status(200).json({ id: project.project_id });
-                })
-                .catch(err => {
-                    return res.status(500).json({ error: "Failed to update total posts number" });
-                })
+    if (id) {
+        Project.findOneAndUpdate({ project_id }, { title, des, banner, content, tags, draft: draft ? draft : false })
+            .then(project => {
+                return res.status(200).json({ id: project_id });
+            })
+            .catch(err => {
+                return res.status(500).json({ error: err.message });
+            })
+    } else {
+        let project = new Project({
+            title,
+            des,
+            banner,
+            projectUrl,
+            repository,
+            tags,
+            content,
+            author: authorId,
+            project_id,
+            draft: Boolean(draft)
         })
-        .catch(err => {
-            return res.status(500).json({ error: err.message });
-        })
+
+        project.save()
+            .then(project => {
+                let incrementVal = draft ? 0 : 1;
+
+                User.findOneAndUpdate({ _id: authorId }, { $inc: { "account_info.total_posts": incrementVal }, $push: { "projects": project._id } })
+                    .then(user => {
+                        return res.status(200).json({ id: project.project_id });
+                    })
+                    .catch(err => {
+                        return res.status(500).json({ error: "Failed to update total posts number" });
+                    })
+            })
+            .catch(err => {
+                return res.status(500).json({ error: err.message });
+            })
+    }
+
 }
 
 export const getAllProjects = async (req, res) => {
@@ -167,9 +178,9 @@ export const searchProjectsCount = async (req, res) => {
 }
 
 export const getProject = async (req, res) => {
-    let { project_id } = req.body;
+    let { project_id, draft, mode } = req.body;
 
-    let incrementVal = 1;
+    let incrementVal = mode !== 'edit' ? 1 : 0;
 
     Project.findOneAndUpdate({ project_id }, { $inc: { "activity.total_reads": incrementVal } })
         .populate("author", "personal_info.fullname personal_info.username personal_info.profile_img")
@@ -182,6 +193,10 @@ export const getProject = async (req, res) => {
                 .catch(err => {
                     return res.status(500).json({ error: err.message });
                 })
+
+            if (project.draft && !draft) {
+                return res.status(500).json({ error: "You can't access draft project" });
+            }
 
             return res.status(200).json({ project });
         })
