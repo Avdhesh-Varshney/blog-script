@@ -4,6 +4,7 @@ import dotenv from "dotenv";
 
 import connectDB from "./config/db.js";
 import router from "./Routes/index.js";
+import { initCronJobs } from "./utils/cron.js";
 
 dotenv.config();
 
@@ -20,5 +21,8 @@ connectDB();
 // Routes
 server.get("/", (req, res) => res.send("Backend is running..."));
 server.use("/api", router);
+
+// Initialize cron jobs
+initCronJobs(server);
 
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

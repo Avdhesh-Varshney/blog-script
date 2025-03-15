@@ -14,11 +14,16 @@ const defaultBanner = "https://res.cloudinary.com/avdhesh-varshney/image/upload/
 
 const ProjectEditor = () => {
 
-    let { project, project: { title, banner, repository, projectUrl, content, tags, des }, setProject, textEditor, setTextEditor, setEditorState } = useContext(EditorContext);
+    let { project, project: { projectId, title, banner, repository, projectUrl, content, tags, des }, setProject, textEditor, setTextEditor, setEditorState } = useContext(EditorContext);
 
     let { userAuth: { access_token } } = useContext(UserContext);
 
     let navigate = useNavigate();
+
+    const handleCopy = () => {
+        navigator.clipboard.writeText(projectId);
+        toast.success("Project ID copied to clipboard");
+    };
 
     useEffect(() => {
         if (!textEditor.isReady) {
@@ -181,6 +186,17 @@ const ProjectEditor = () => {
             <AnimationWrapper>
                 <section>
                     <div className="mx-auth max-w-[900px] w-full">
+                        <div className="text-sm text-gray-500 mb-4 font-gelasio flex items-center gap-2">
+                            <span>Project ID:</span>
+                            <span className="font-mono text-gray-700">{projectId}</span>
+                            <button
+                                className="py-1 px-2 bg-gray-200 hover:bg-gray-300 rounded-md flex items-center justify-center cursor-pointer"
+                                onClick={handleCopy}
+                            >
+                                <i className="fi fi-rr-copy text-sm"></i>
+                            </button>
+                        </div>
+
                         <div className="relative aspect-video hover:opacity-80 bg-white border-4 border-gray-200">
                             <label htmlFor="uploadBanner">
                                 <img

@@ -1,0 +1,77 @@
+name: Auto Close Inactive PRs
+
+on:
+  schedule:
+    - cron: '0 0 */2 * *'
+  workflow_dispatch:
+
+jobs:
+  auto-close:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Close inactive PRs
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            const now = new Date();
+            const twoWeeksAgo = new Date(now.getTime() - 14 * 24 * 60 * 60 * 1000);
+            
+            // Format date for GitHub API query
+            const formattedDate = twoWeeksAgo.toISOString().split('T')[0];
+
+            console.log(`Finding PRs older than ${formattedDate}...`);
+            
+            // Get open PRs that haven't been updated in 2 weeks
+            const { data: openPRs } = await github.rest.pulls.list({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              sort: 'updated',
+              direction: 'asc'
+            });
+            
+            let closed = 0;
+            
+            // Process each PR
+            for (const pr of openPRs) {
+              const updatedAt = new Date(pr.updated_at);
+              
+              if (updatedAt < twoWeeksAgo) {
+                console.log(`PR #${pr.number} by ${pr.user.login} was last updated on ${updatedAt.toISOString().split('T')[0]}, closing...`);
+                
+                // Add comment to PR
+                await github.rest.issues.createComment({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  issue_number: pr.number,
+                  body: `This PR is being automatically closed due to inactivity for more than 2 weeks. Please open a new PR if you wish to continue with this contribution. The associated draft project will also be removed from the database.`
+                });
+                
+                // Close PR
+                await github.rest.pulls.update({
+                  owner: context.repo.owner,
+                  repo: context.repo.repo,
+                  pull_number: pr.number,
+                  state: 'closed'
+                });
+
+                // Trigger webhook cleanup for the database
+                try {
+                  const axios = require('axios');
+                  await axios.post('https://blog-script-1-1cc6.onrender.com/api/webhook/cleanup-drafts', {
+                    prNumber: pr.number,
+                    secret: process.env.WEBHOOK_SECRET
+                  });
+
+                  closed++;
+                } catch (error) {
+                  console.error(`Error triggering cleanup webhook for PR #${pr.number}:`, error);
+                }
+              }
+            }
+
+            console.log(`Closed ${closed} inactive PRs`);

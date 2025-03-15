@@ -5,6 +5,7 @@ import ProjectEditor from "../components/ProjectEditor";
 import PublishForm from "../components/PublishForm";
 
 const projectStructure = {
+    projectId: `PID-${Date.now().toString(36)}`,
     title: "",
     banner: "",
     projectUrl: "",
